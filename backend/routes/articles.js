@@ -37,7 +37,7 @@ router.post('/', upload.single('img'), async (req, res) => {
   try {
     const newArticle = {
       item: req.body.item,
-      img: req.file ? `images/${req.file.filename}` : null,
+      img: req.file ? `images/${req.file.filename}` : `images/placeholder.png`,
       title: req.body.title,
       aka: req.body.aka || null,
       actor: req.body.actor || null,
@@ -187,7 +187,9 @@ router.get('/search/movieNumber', async (req, res) => {
   try {
     const articles = await Article.findAll({
       where: {
-        movieNumber: movieNumber,
+        movieNumber: {
+          [Op.like]: `%${movieNumber}%`
+        },
       },
     })
 
@@ -213,9 +215,11 @@ router.get('/search/sku', async (req, res) => {
   try {
     const articles = await Article.findAll({
       where: {
-        sku: sku,
-      },
-    })
+        sku: {
+          [Op.like]: `%${sku}%`
+        }
+      }
+    });
 
     if (articles.length === 0) {
       return res.status(404).json({ message: 'No se encontraron artículos con ese SKU.' })
